@@ -1,0 +1,26 @@
+{
+  "name": "pinia",
+  "description": "pinia 源码简易版 主要用作学习用途",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vue-tsc && vite build",
+    "preview": "vite preview",
+    "test:vitest": "vitest --coverage"
+  },
+  "dependencies": {
+    "prettier": "^3.2.5",
+    "vitest": "^1.6.0",
+    "vue": "^3.4.21",
+    "vue-demi": "^0.14.7"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-vue": "^5.0.4",
+    "@vitest/coverage-v8": "^1.6.0",
+    "typescript": "^5.2.2",
+    "vite": "^5.2.0",
+    "vue-tsc": "^2.0.6"
+  }
+}
