@@ -7,7 +7,7 @@ export const useCounterStore = defineStore('counter', {
         };
     },
     getters: {
-        getCount(state) {
+        getCount(state: any) {
             return state.count;
         },
     },
