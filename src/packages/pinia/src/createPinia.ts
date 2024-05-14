@@ -77,8 +77,6 @@ export function createPinia(): Pinia {
         state,
     });
 
-    // TODO: 添加 devTools 注册逻辑
-
     // 返回创建的 Pinia 实例
     return pinia;
 }

@@ -6,13 +6,14 @@ import {
     isReactive,
     isRef,
     reactive,
+    Ref,
+    toRefs,
     UnwrapRef,
     watch,
     WatchOptions,
 } from 'vue-demi';
 import {
     _ActionsTree,
-    _DeepPartial,
     _GettersTree,
     _Method,
     DefineStoreOptions,
@@ -40,7 +41,10 @@ function mergeReactiveObjects<T extends Record<any, unknown>>(
         const subPatch = patchToApply[key];
         const targetValue = target[key];
 
-        if (
+        if (isRef(targetValue)) {
+            // 如果目标属性是 ref，直接更新 ref 的值
+            (targetValue as Ref<any>).value = subPatch;
+        } else if (
             isPlainObject(targetValue) &&
             isPlainObject(subPatch) &&
             target.hasOwnProperty(key) &&
@@ -78,9 +82,6 @@ function createOptionsStore<
         pinia.state.value[id] = state ? state() : {};
     }
 
-    const val = pinia.state.value[id];
-    console.log(val);
-
     const subscriptions: SubscriptionCallback<S>[] = [];
     const actionSubscriptions: StoreOnActionListener<Id, S, G, A>[] = [];
 
@@ -88,11 +89,13 @@ function createOptionsStore<
     const store: Store<Id, S, G, A> = reactive({
         _p: pinia,
         $id: id,
-        $patch: (partialStateOrMutator: _DeepPartial<S> | ((state: S) => void)) => {
+        // 将 state 中的属性合并到 store 对象中
+        ...toRefs(pinia.state.value[id]),
+        $patch: (partialStateOrMutator: Partial<S> | ((state: S) => void)) => {
             if (typeof partialStateOrMutator === 'function') {
                 partialStateOrMutator(pinia.state.value[id] as S);
             } else {
-                Object.assign(pinia.state.value[id], partialStateOrMutator);
+                mergeReactiveObjects(pinia.state.value[id], partialStateOrMutator);
             }
         },
         $reset: () => {
@@ -202,6 +205,8 @@ function createSetupStore<
     const store: Store<Id, S, G, A> = reactive({
         _p: pinia, // 保存对 pinia 实例的引用
         $id: id, // store 的唯一标识符
+        // 将 state 中的属性合并到 store 对象中
+        ...toRefs(pinia.state.value[id]),
         $patch: (partialStateOrMutator: Partial<S> | ((state: S) => void)) => {
             // 用于修改 state 的方法
             if (typeof partialStateOrMutator === 'function') {

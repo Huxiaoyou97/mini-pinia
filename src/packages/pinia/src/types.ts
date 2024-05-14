@@ -143,9 +143,16 @@ export interface DefineStoreOptions<Id extends string, S extends StateTree, G, A
     extends DefineStoreOptionsBase {
     id: Id; // store 的 ID
     state?: () => S; // 状态工厂函数
+    // getters?: G &
+    //     ThisType<UnwrapRef<S> & _StoreWithGetters<G> & PiniaCustomProperties> &
+    //     _GettersTree<S>; // getter 对象
     getters?: G &
-        ThisType<UnwrapRef<S> & _StoreWithGetters<G> & PiniaCustomProperties> &
-        _GettersTree<S>; // getter 对象
+        ThisType<
+            Readonly<UnwrapRef<S> & PiniaCustomStateProperties & UnwrapRef<G>> &
+                A & {
+                    $pinia: Pinia;
+                }
+        >;
     actions?: A &
         ThisType<
             A &
