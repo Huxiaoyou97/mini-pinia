@@ -82,8 +82,8 @@ function createOptionsStore<
         pinia.state.value[id] = state ? state() : {};
     }
 
-    const subscriptions: SubscriptionCallback<S>[] = [];
-    const actionSubscriptions: StoreOnActionListener<Id, S, G, A>[] = [];
+    let subscriptions: SubscriptionCallback<S>[] = [];
+    let actionSubscriptions: StoreOnActionListener<Id, S, G, A>[] = [];
 
     // 创建 store
     const store: Store<Id, S, G, A> = reactive({
@@ -139,8 +139,16 @@ function createOptionsStore<
             return addSubscription(actionSubscriptions, callback, detached);
         },
         $dispose: () => {
-            // 销毁 store
-            // 省略实现...
+            // 清除所有订阅
+            subscriptions = [];
+            actionSubscriptions = [];
+
+            // 清理存储的数据
+            // @ts-ignore
+            pinia.state.value[id] = undefined;
+
+            // 通知 Pinia 实例
+            pinia._s.delete(id);
         },
     }) as Store<Id, S, G, A>;
 
